@@ -749,6 +749,18 @@
           transform: rotate(360deg);
         }
       }
+
+      /* Extra info error text */
+      .field-error {
+        color: var(--danger-color);
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .field-error.show {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -844,6 +856,65 @@
                     border-radius: 6px;
                   "
                 />
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  width: 100%;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+                    width: 100%;
+                    max-width: 340px;
+                  "
+                >
+                  <label
+                    for="extraInfoInput"
+                    style="
+                      color: var(--text-muted);
+                      font-size: 14px;
+                      min-width: 80px;
+                      padding-top: 10px;
+                    "
+                    >Extra Info:</label
+                  >
+                  <textarea
+                    id="extraInfoInput"
+                    placeholder='{"key":"value"} (optional)'
+                    rows="8"
+                    style="
+                      flex: 1;
+                      width: 200px;
+                      padding: 10px 12px;
+                      border: 1px solid var(--border-color);
+                      border-radius: 6px;
+                      font-family:
+                        &quot;Consolas&quot;, &quot;Courier New&quot;, monospace;
+                      font-size: 13px;
+                      resize: vertical;
+                    "
+                  >
+{
+  "phoneNumber": "0972018179",
+  "kioskMetadata": {
+    "kioskId": "1236abc",
+    "kioskAddress": "67 Hoàng Văn Thái"
+  },
+  "measurementSessionId": "9f1c2b7a-3e44-4a10-9c2d-5b6f0a1e2d34",
+  "measurementReportUrl": "https://civipay-dev.gotrust.vn/mobile-result/64e1bb8c9127a08e3bbec775"
+}</textarea
+                  >
+                </div>
+                <span id="extraInfoError" class="field-error"
+                  >Extra Info phải là JSON hợp lệ</span
+                >
               </div>
             </div>
 
@@ -1056,6 +1127,8 @@
       const callBtn = document.getElementById("make");
       const phoneInput = document.getElementById("phoneInput");
       const appIdInput = document.getElementById("appIdInput");
+      const extraInfoInput = document.getElementById("extraInfoInput");
+      const extraInfoError = document.getElementById("extraInfoError");
       const callAgainBtn = document.getElementById("callAgain");
 
       // Screen Elements
@@ -1110,6 +1183,23 @@
         zoomBtn.addEventListener("click", handleZoom);
         hangupBtn.addEventListener("click", handleHangup);
 
+        // Extra info live validation
+        extraInfoInput.addEventListener("input", () => {
+          const raw = extraInfoInput.value.trim();
+          if (!raw) {
+            extraInfoError.classList.remove("show");
+            extraInfoInput.style.borderColor = "var(--border-color)";
+            return;
+          }
+          if (isValidJSON(raw)) {
+            extraInfoError.classList.remove("show");
+            extraInfoInput.style.borderColor = "var(--secondary-color)";
+          } else {
+            extraInfoError.classList.add("show");
+            extraInfoInput.style.borderColor = "var(--danger-color)";
+          }
+        });
+
         // Resolution select
         document
           .getElementById("resolutionSelect")
@@ -1133,6 +1223,16 @@
                 );
               });
           });
+      }
+
+      // JSON validation helper
+      function isValidJSON(str) {
+        try {
+          JSON.parse(str);
+          return true;
+        } catch (e) {
+          return false;
+        }
       }
 
       // Screen management functions
@@ -1174,11 +1274,14 @@
         // Clear form inputs
         phoneInput.value = "";
         appIdInput.value = "";
+        extraInfoError.classList.remove("show");
+        extraInfoInput.style.borderColor = "var(--border-color)";
       }
 
       async function handleMakeCall() {
         const phoneNumber = phoneInput.value.trim();
         const appId = appIdInput.value.trim();
+        const extraInfoRaw = extraInfoInput.value.trim();
 
         // Validate phone number
         if (!phoneNumber) {
@@ -1195,8 +1298,21 @@
           return;
         }
 
+        // Validate extraInfo (JSON, optional)
+        let extraInfo; // undefined nếu không nhập
+        if (extraInfoRaw) {
+          if (!isValidJSON(extraInfoRaw)) {
+            extraInfoError.classList.add("show");
+            extraInfoInput.style.borderColor = "var(--danger-color)";
+            notyf.error("Extra Info không đúng định dạng JSON!");
+            return;
+          }
+          extraInfo = extraInfoRaw; // giữ nguyên dạng string để truyền vào SDK
+        }
+
         console.log("phoneNumber", phoneNumber);
         console.log("appId", appId);
+        console.log("extraInfo", extraInfo);
 
         // Show connecting screen
         showScreen("connecting");
@@ -1217,8 +1333,9 @@
           // Setup event listeners
           setupSDKEventListeners();
           facingMode = "environment";
-          // Make the call using the entered phone number
-          const result = await guest.makeCall(phoneNumber, {
+
+          // Build call options; only include extraInfo when it has a value
+          const callOptions = {
             enableVideo: true,
             requestDelegate: {
               onAccept: (sessionId, record) => {
@@ -1245,7 +1362,14 @@
                 // Keep showing connecting screen until call is accepted
               },
             },
-          });
+          };
+
+          if (extraInfo) {
+            callOptions.extraInfo = extraInfo;
+          }
+
+          // Make the call using the entered phone number
+          const result = await guest.makeCall(phoneNumber, callOptions);
           facingMode = "environment"; // Reset to default camera
           console.log("Call initiated successfully", result);
           addLog("Call initiated: " + JSON.stringify(result));
