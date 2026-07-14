@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OmiSDK - Ví dụ cơ bản</title>
+    <style>
+      :root {
+        --bg: #0f1218;
+        --panel: #171b22;
+        --panel-elev: #1e2430;
+        --text: #e6ebf2;
+        --muted: #a5afbd;
+        --primary: #4caf50;
+        --primary-600: #43a047;
+        --secondary: #2196f3;
+        --danger: #ef5350;
+        --warning: #ffb300;
+        --border: rgba(255, 255, 255, 0.08);
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+        --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.25);
+        --gap: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          "Apple Color Emoji",
+          "Segoe UI Emoji";
+        color: var(--text);
+        background:
+          radial-gradient(
+            1200px 800px at 10% -10%,
+            #1b2130 0%,
+            transparent 70%
+          ),
+          radial-gradient(1000px 700px at 110% 0%, #1b2130 0%, transparent 60%),
+          var(--bg);
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        text-align: center;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .example-container {
+        width: 100%;
+        margin: 0;
+        display: grid;
+        gap: var(--gap);
+      }
+
+      .panels {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--gap);
+      }
+
+      .panel {
+        background: linear-gradient(
+          180deg,
+          var(--panel) 0%,
+          var(--panel-elev) 100%
+        );
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-controls {
+        grid-column: span 2;
+      }
+
+      .inline-actions {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .control-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .btn-call {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, #223042 0%, #1b2532 100%);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        min-height: 44px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        transition:
+          transform 0.08s ease,
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .btn-call:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+
+      .btn-call:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          180deg,
+          var(--primary) 0%,
+          var(--primary-600) 100%
+        );
+        border-color: transparent;
+        color: #0b1208;
+      }
+
+      .btn-danger {
+        background: linear-gradient(180deg, var(--danger) 0%, #d84340 100%);
+        border-color: transparent;
+        color: #120909;
+      }
+
+      .btn-secondary {
+        background: linear-gradient(180deg, var(--secondary) 0%, #1e88e5 100%);
+        border-color: transparent;
+        color: #081018;
+      }
+
+      .video-grid {
+        display: grid;
+        /* grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); */
+        gap: 12px;
+      }
+
+      .video-grid video {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        background: #0b0f14;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        object-fit: cover;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .canvas-box canvas {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        background: #0b0f14;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .console {
+        background: #0b0f14;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        padding: 12px;
+        max-height: 260px;
+        overflow: auto;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .console-entry {
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+      }
+
+      .console-entry:last-child {
+        border-bottom: none;
+      }
+
+      .timestamp {
+        color: var(--muted);
+      }
+
+      .hidden {
+        display: none;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+
+      /* Snapshot Gallery Styles */
+      .snapshot-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .snapshot-item {
+        background: var(--panel-elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .snapshot-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      .snapshot-item img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+        display: block;
+      }
+
+      .snapshot-info {
+        padding: 8px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .snapshot-info p {
+        margin: 2px 0;
+      }
+
+      .snapshot-actions {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .snapshot-actions button {
+        flex: 1;
+        padding: 6px;
+        font-size: 11px;
+        min-height: auto;
+      }
+
+      .snapshot-options {
+        background: var(--panel-elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .snapshot-options h3 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .options-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .option-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .option-group label {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--muted);
+      }
+
+      .option-group select,
+      .option-group input {
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 12px;
+      }
+
+      .btn-warning {
+        background: linear-gradient(180deg, var(--warning) 0%, #f9a825 100%);
+        border-color: transparent;
+        color: #1a1308;
+      }
+
+      /* Chat Panel */
+      .panel-chat {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-messages {
+        flex: 1;
+        min-height: 300px;
+        max-height: 420px;
+        overflow-y: auto;
+        background: #0b0f14;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .chat-bubble {
+        max-width: 75%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        font-size: 13px;
+        line-height: 1.45;
+        word-break: break-word;
+        position: relative;
+      }
+
+      .chat-bubble .chat-meta {
+        font-size: 10px;
+        margin-top: 4px;
+        opacity: 0.6;
+      }
+
+      .chat-bubble.incoming {
+        align-self: flex-start;
+        background: var(--panel-elev);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 4px;
+        color: var(--text);
+      }
+
+      .chat-bubble.outgoing {
+        align-self: flex-end;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-600) 100%
+        );
+        border-bottom-right-radius: 4px;
+        color: #0b1208;
+      }
+
+      .chat-bubble .chat-sender {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+        opacity: 0.7;
+      }
+
+      .chat-input-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .chat-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .chat-input:focus {
+        border-color: var(--primary);
+      }
+
+      .chat-image {
+        max-width: 100%;
+        max-height: 220px;
+        border-radius: 8px;
+        margin: 4px 0;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        display: block;
+      }
+
+      .chat-image:hover {
+        opacity: 0.85;
+      }
+
+      .chat-file {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--secondary);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+
+      .chat-file:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .chat-file-size {
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      .chat-bubble.outgoing .chat-file {
+        background: rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0.15);
+        color: #0b1208;
+      }
+
+      .chat-bubble.outgoing .chat-file:hover {
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      .chat-file-hidden {
+        display: none;
+      }
+
+      .chat-file-label {
+        cursor: pointer;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .chat-file-info {
+        flex: 1;
+        font-size: 12px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 44px;
+      }
+
+      .chat-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--muted);
+        font-size: 13px;
+        opacity: 0.5;
+      }
+    </style>
+    <link rel="stylesheet" href="/dist/style.css" />
+  </head>
+  <body>
+    <h1>OmiSDK - Ví dụ cơ bản</h1>
+    <div class="example-container">
+      <div class="panels">
+        <section class="panel">
+          <h2>Vùng SDK</h2>
+          <div id="sdk-container"></div>
+          <div class="inline-actions">
+            <button class="btn-call btn-primary" id="show-bubble">
+              Hiện bong bóng
+            </button>
+            <button class="btn-call" id="hide-bubble">Ẩn bong bóng</button>
+            <button class="btn-call btn-secondary" id="toggle-mode">
+              Chuyển chế độ
+            </button>
+          </div>
+        </section>
+
+        <section class="panel panel-controls">
+          <h2>Điều khiển</h2>
+          <div class="control-grid">
+            <button class="btn-call btn-primary" id="accept">
+              Nhận cuộc gọi
+            </button>
+            <button class="btn-call btn-danger" id="reject">Hủy</button>
+            <button class="btn-call" id="mute">Tắt mic</button>
+            <button class="btn-call" id="un mute">Bật mic</button>
+            <button class="btn-call" id="hold">Giữ máy</button>
+            <button class="btn-call" id="un_hold">Bỏ giữ máy</button>
+            <button class="btn-call" id="make">Gọi ra</button>
+            <button class="btn-call btn-danger" id="hangup">
+              Kết thúc cuộc gọi
+            </button>
+            <button class="btn-call" id="cameraOn">Bật camera</button>
+            <button class="btn-call" id="cameraOff">Tắt camera</button>
+            <button class="btn-call" id="list_agent">Danh sách agent</button>
+            <button class="btn-call" id="change_agent">
+              Đổi trạng thái agent
+            </button>
+            <button class="btn-call btn-secondary" id="login">Đăng nhập</button>
+            <button class="btn-call" id="acceptTransfer">
+              Chấp nhận chuyển cuộc gọi
+            </button>
+            <button class="btn-call" id="current">Trạng thái hiện tại</button>
+            <button class="btn-call" id="makeInternal">Gọi nội bộ</button>
+            <button class="btn-call" id="acceptRefuseTransfer">
+              Từ chối chuyển cuộc gọi
+            </button>
+            <button class="btn-call" id="transfer">Chuyển cuộc gọi</button>
+            <button class="btn-call" id="getLog">Xem log</button>
+            <button class="btn-call" id="getGroupAgents">Nhóm agent</button>
+            <button class="btn-call" id="getAgentQueuesById">
+              Hàng đợi theo ID
+            </button>
+            <button class="btn-call" id="getAgentByExtension">
+              Agent theo máy nhánh
+            </button>
+            <button class="btn-call" id="closeSession">Đóng phiên</button>
+            <button class="btn-call" id="logout">Đăng xuất</button>
+
+            <button class="btn-call" id="updateVideo">Cập nhật video</button>
+            <button class="btn-call" id="startBackgroundBlur">
+              Bắt đầu làm mờ nền
+            </button>
+            <button class="btn-call" id="sendBackgroundBlur">Gửi nền mờ</button>
+            <button class="btn-call" id="sendBackgroundBlur-1">
+              Gửi nền mờ 1
+            </button>
+            <button class="btn-call" id="unSendBackgroundBlur">
+              Hủy gửi nền mờ
+            </button>
+            <button class="btn-call" id="joinConference">
+              Tham gia cuộc họp
+            </button>
+            <button class="btn-call" id="accpetJoin">fake join</button>
+            <button class="btn-call btn-warning" id="captureSnapshot">
+              📸 Chụp ảnh Remote
+            </button>
+            <button class="btn-call btn-primary" id="startVoiceToText">
+              Bắt đầu Transcript
+            </button>
+          </div>
+        </section>
+
+        <div id="transcript" style="color: white">
+          <h1>transcript</h1>
+        </div>
+
+        <section class="panel">
+          <h2>Video</h2>
+          <div class="video-grid">
+            <video
+              id="local"
+              title="video cục bộ"
+              muted
+              autoplay
+              playsinline
+              onloadedmetadata="
+                (res) => {
+                  console.log('Video đã tải xong!', res);
+                  console.log('Video đã tải xong!');
+                }
+              "
+            ></video>
+            <video
+              id="mpt-el-local-video-1"
+              title="video cục bộ"
+              muted
+              autoplay
+              playsinline
+              onloadedmetadata="
+                (res) => {
+                  console.log('Video đã tải xong!', res);
+                  console.log('Video đã tải xong!');
+                }
+              "
+            ></video>
+            <video
+              id="video1"
+              title="1"
+              muted
+              autoplay
+              playsinline
+              onerror="console.log('video1 error')"
+              onloadedmetadata="
+                (res) => {
+                  console.log('Video đã tải xong!', res);
+                  console.log('Video đã tải xong!');
+                }
+              "
+            ></video>
+            <video id="screen" title="màn hình" muted autoplay></video>
+            <video id="video2" title="2" muted autoplay></video>
+            <video id="video3" title="3" muted autoplay></video>
+            <video id="video4" title="4" muted autoplay></video>
+            <video id="video5" title="5" muted autoplay></video>
+            <video id="video6" title="6" muted autoplay></video>
+            <video id="video7" title="7" muted autoplay></video>
+          </div>
+          <!-- <canvas id="outputCanvas" width="640" height="480"></canvas> -->
+        </section>
+
+        <section class="panel">
+          <h2>Canvas</h2>
+          <div class="canvas-box">
+            <canvas id="previewCanvas" width="640" height="360"></canvas>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>📸 Ảnh đã chụp (<span id="snapshotCount">0</span>)</h2>
+          <div class="snapshot-options">
+            <h3>⚙️ Tùy chọn chụp ảnh</h3>
+            <div class="options-row">
+              <div class="option-group">
+                <label for="snapshotFormat">Định dạng:</label>
+                <select id="snapshotFormat">
+                  <option value="png">PNG</option>
+                  <option value="jpeg" selected>JPEG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </div>
+              <div class="option-group">
+                <label for="snapshotQuality">Chất lượng (0-1):</label>
+                <input
+                  type="number"
+                  id="snapshotQuality"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value="0.85"
+                />
+              </div>
+              <div class="option-group">
+                <label for="snapshotOutput">Kiểu đầu ra:</label>
+                <select id="snapshotOutput">
+                  <option value="base64" selected>Base64</option>
+                  <option value="blob">Blob</option>
+                  <option value="dataURL">Data URL</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="snapshotGallery" class="snapshot-gallery"></div>
+        </section>
+
+        <section class="panel panel-chat">
+          <h2>💬 Chat</h2>
+          <div id="chatMessages" class="chat-messages"></div>
+          <div class="chat-input-row">
+            <input
+              type="text"
+              id="chatInput"
+              class="chat-input"
+              placeholder="Nhập tin nhắn..."
+            />
+            <button class="btn-call btn-primary" id="chatSend">Gửi</button>
+          </div>
+          <div class="chat-input-row">
+            <label class="btn-call chat-file-label" for="chatFileInput"
+              >📎 Chọn file</label
+            >
+            <input
+              type="file"
+              id="chatFileInput"
+              multiple
+              class="chat-file-hidden"
+            />
+            <span id="chatFileInfo" class="chat-file-info">Chưa chọn file</span>
+            <button class="btn-call btn-secondary" id="chatFileSend">
+              Gửi file
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Ghi log</h2>
+          <div id="console" class="console"></div>
+        </section>
+      </div>
+
+      <div class="sr-only">
+        <audio id="audio1"></audio>
+        <audio id="audio2"></audio>
+        <audio id="audio3"></audio>
+        <audio id="audio4"></audio>
+        <audio id="audio5"></audio>
+        <audio id="audio6"></audio>
+        <audio id="audio7"></audio>
+      </div>
+    </div>
+
+    <script type="module">
+      console.log("module load!", new Date());
+
+      // For this example, we're importing from the local build
+      import { OmiSDK } from "./omisdk.es.js";
+      const autoConnected = localStorage.getItem("autoConnected");
+      window.addEventListener("load", (ev) => {
+        console.log("document on load!", new Date());
+        // In a real application, you would import from the package
+        // import { OmiSDK } from '@mptransformation/omisdk';
+
+        // Console logging
+        const consoleElement = document.getElementById("console");
+
+        function logToConsole(message) {
+          const entry = document.createElement("div");
+          entry.className = "console-entry";
+
+          const timestamp = document.createElement("span");
+          timestamp.className = "timestamp";
+          timestamp.textContent = new Date().toLocaleTimeString() + " - ";
+
+          const content = document.createElement("span");
+          content.textContent = message;
+
+          entry.appendChild(timestamp);
+          entry.appendChild(content);
+          consoleElement.appendChild(entry);
+
+          // Auto-scroll to bottom
+          consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+        // Initialize the SDK
+        const sdk = new OmiSDK();
+
+        // Initialize the SDK
+        sdk.init({
+          targetElementId: "sdk-container",
+          mode: "bubble",
+          enableMediapipe: true,
+          enableTranscript: true,
+          backgroundImages: [
+            {
+              id: 1,
+              url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920",
+            },
+            {
+              id: 2,
+              url: "https://m.yodycdn.com/blog/hinh-nen-thien-nhien-4k-yody-vn-39.jpg",
+            },
+            {
+              id: 3,
+              url: "https://cuaxepnhuagiare.com/wp-content/uploads/2020/09/cach-bai-tri-nha-ve-sinh-duoi-gam-cau-thang.jpg.webp",
+            },
+          ],
+          theme: {
+            primaryColor: "#4CAF50",
+            secondaryColor: "#2196F3",
+            borderRadius: "8px",
+            bubblePosition: "bottom-right",
+          },
+          forceNew: autoConnected,
+          debug: true,
+          baseUrl: "https://crm-dev-v2.metechvn.com",
+          localVideoId: "local",
+          remoteVideoId: [
+            "video1",
+            "video2",
+            "video3",
+            "video4",
+            "video5",
+            "video6",
+          ],
+          remoteAudioId: [
+            "audio1",
+            "audio2",
+            "audio3",
+            "audio4",
+            "audio5",
+            "audio6",
+          ],
+          delegate: {
+            onAccept: (sessionId) => {
+              console.log("onAccept", sessionId);
+            },
+            onHangup: (sessionId) => {
+              console.log("onHangup", sessionId);
+            },
+          },
+        });
+
+        // setTimeout(() => {
+        //   Login();
+        // }, 3000);
+
+        function AccpetCall() {
+          sdk.answerCall({
+            requestDelegate: {
+              onAccept: (sessionId, record) => {
+                console.log("requestDelegate", sessionId, record);
+              },
+            },
+            enableVideo: true,
+          });
+        }
+        function Login() {
+          sdk.login({
+            tenantId: 4,
+            username: "hoangnt",
+            password: "123456aA@",
+          });
+        }
+        function makeCall() {
+          sdk
+            .makeCall("0238412345", {
+              did: "18006601",
+              extraInfo: "Nguyen tien hoang Tester",
+            })
+            .then((res) => {
+              console.log("res", res);
+            })
+            .catch((err) => {
+              console.log("err", err);
+            });
+        }
+        function hangUp() {
+          sdk
+            .hangup({
+              onAccept: (sessionId, record) => {
+                console.log("requestDelegate", sessionId, record);
+              },
+            })
+            .then((res) => {
+              console.log("res", res);
+            });
+        }
+        function hold() {
+          sdk.hold();
+        }
+        function un_hold() {
+          sdk.unhold();
+        }
+        document.getElementById("mute").addEventListener("click", () => {
+          sdk.mute();
+        });
+        document
+          .getElementById("startBackgroundBlur")
+          .addEventListener("click", () => {
+            sdk.startBackgroundBlur();
+          });
+        document.getElementById("un mute").addEventListener("click", () => {
+          sdk.unmute();
+        });
+        document.getElementById("hangup").addEventListener("click", () => {
+          hangUp();
+        });
+        document.getElementById("accept").addEventListener("click", () => {
+          AccpetCall();
+        });
+        document.getElementById("reject").addEventListener("click", () => {
+          sdk.rejectCall();
+        });
+        document.getElementById("hold").addEventListener("click", () => {
+          hold();
+        });
+        document.getElementById("un_hold").addEventListener("click", () => {
+          un_hold();
+        });
+        document.getElementById("make").addEventListener("click", () => {
+          makeCall();
+        });
+
+        document.getElementById("logout").addEventListener("click", () => {
+          sdk.logout();
+        });
+        document.getElementById("current").addEventListener("click", () => {
+          sdk.getCurrentStatus();
+        });
+        document.getElementById("getLog").addEventListener("click", () => {
+          sdk.getLog();
+        });
+        document
+          .getElementById("closeSession")
+          .addEventListener("click", () => {
+            sdk.closeSession();
+          });
+        document
+          .getElementById("makeInternal")
+          .addEventListener("click", () => {
+            sdk.makeCallInternal("12004", "hello", true);
+          });
+        document.getElementById("transfer").addEventListener("click", () => {
+          sdk.transfer("30001", "QUEUE", "ATTENDED_TRANSFER");
+        });
+        document.getElementById("login").addEventListener("click", () => {
+          Login();
+        });
+        document
+          .getElementById("getGroupAgents")
+          .addEventListener("click", () => {
+            sdk.getAgentQueues();
+          });
+        document
+          .getElementById("getAgentQueuesById")
+          .addEventListener("click", () => {
+            sdk.getAgentQueuesById("1f094398-fa1d-4000-97ee-409a6da4e0fd");
+          });
+        document
+          .getElementById("acceptTransfer")
+          .addEventListener("click", () => {
+            sdk.acceptTransfer();
+          });
+        document
+          .getElementById("getAgentByExtension")
+          .addEventListener("click", () => {
+            sdk.getAgentByExtension("30011");
+          });
+        document
+          .getElementById("acceptRefuseTransfer")
+          .addEventListener("click", () => {
+            sdk.refuseTransfer();
+            console.log("acceptRefuseTransfer");
+          });
+        document.getElementById("cameraOn").addEventListener("click", () => {
+          console.log("cameraOn");
+
+          sdk.cameraOn();
+        });
+        document.getElementById("cameraOff").addEventListener("click", () => {
+          console.log("cameraOn");
+
+          sdk.cameraOff();
+        });
+        document.getElementById("updateVideo").addEventListener("click", () => {
+          sdk.putMessage();
+        });
+        document
+          .getElementById("joinConference")
+          .addEventListener("click", () => {
+            sdk.joinVideoCall("10999", {
+              onSuccess: (extension) => {
+                console.log("joinConference onSuccess", extension);
+              },
+              onFailure: (extension) => {
+                console.log("joinConference onFailure", extension);
+              },
+            });
+          });
+        document.getElementById("accpetJoin").addEventListener("click", () => {
+          // sdk.submitFake("10999", "1998");
+        });
+
+        document
+          .getElementById("sendBackgroundBlur")
+          .addEventListener("click", () => {
+            sdk.sendBackgroundBlur(true, 1);
+          });
+        document
+          .getElementById("sendBackgroundBlur-1")
+          .addEventListener("click", () => {
+            sdk.sendBackgroundBlur(true, 2);
+          });
+        document
+          .getElementById("unSendBackgroundBlur")
+          .addEventListener("click", () => {
+            sdk.sendBackgroundBlur(false);
+          });
+
+        document
+          .getElementById("startVoiceToText")
+          .addEventListener("click", () => {
+            logToConsole("Bắt đầu transcript...");
+            sdk.startVoiceToText();
+          });
+
+        // ============ SNAPSHOT FUNCTIONALITY ============
+        let snapshotCount = 0;
+
+        // Capture snapshot button handler
+        document
+          .getElementById("captureSnapshot")
+          .addEventListener("click", async () => {
+            logToConsole("Đang chụp ảnh remote video...");
+
+            // const format = document.getElementById("snapshotFormat").value;
+            // const quality = parseFloat(
+            //   document.getElementById("snapshotQuality").value
+            // );
+            // const outputType = document.getElementById("snapshotOutput").value;
+
+            try {
+              const result = await sdk.captureRemoteSnapshot({
+                format: "png",
+                quality: 1,
+                remoteVideoId: "video1", // Capture from video1 element
+              });
+
+              if (result.success) {
+                snapshotCount++;
+                logToConsole(
+                  `✅ Chụp ảnh thành công! (#${snapshotCount}) - ${result.metadata.width}x${result.metadata.height}`,
+                );
+
+                // Update count display
+                document.getElementById("snapshotCount").textContent =
+                  snapshotCount;
+
+                // Display snapshot in gallery
+                displaySnapshot(result, "jpeg", "base64");
+              } else {
+                logToConsole(`❌ Chụp ảnh thất bại: ${result.error}`);
+              }
+
+              console.log("Snapshot result:", result);
+            } catch (error) {
+              logToConsole(`❌ Lỗi khi chụp ảnh: ${error.message}`);
+              console.error("Capture error:", error);
+            }
+          });
+
+        // Display snapshot in gallery
+        function displaySnapshot(result, format, outputType) {
+          const gallery = document.getElementById("snapshotGallery");
+          const item = document.createElement("div");
+          item.className = "snapshot-item";
+
+          console.log("result", result);
+
+          // Create image src based on output type
+          let imgSrc = "";
+          imgSrc = result.data[0]?.link;
+
+          // Format timestamp
+          const date = new Date(result.timestamp);
+          const timeStr = date.toLocaleTimeString("vi-VN");
+
+          // Create snapshot item HTML
+          item.innerHTML = `
+                  <img src="${imgSrc}" alt="Snapshot ${snapshotCount}">
+                  <div class="snapshot-info">
+                    <p><strong>Ảnh #${snapshotCount}</strong></p>
+                    <p>⏰ ${timeStr}</p>
+                    <p>📐 ${result.metadata.width}x${result.metadata.height}</p>
+                    <p>📄 ${format.toUpperCase()}</p>
+                  </div>
+                  <div class="snapshot-actions">
+                    <button class="btn-call btn-secondary" onclick="downloadSnapshot('${imgSrc}', 'snapshot_${snapshotCount}.${format}')">
+                      ⬇️ Tải
+                    </button>
+                    <button class="btn-call btn-danger" onclick="this.closest('.snapshot-item').remove(); updateSnapshotCount();">
+                      🗑️ Xóa
+                    </button>
+                  </div>
+                `;
+
+          // Insert at the beginning of gallery
+          gallery.insertBefore(item, gallery.firstChild);
+
+          // If blob, remember to revoke URL later to free memory
+          if (outputType === "blob") {
+            setTimeout(() => {
+              URL.revokeObjectURL(imgSrc);
+            }, 60000); // Revoke after 1 minute
+          }
+        }
+
+        // Download snapshot function (global)
+        window.downloadSnapshot = function (dataUrl, filename) {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          logToConsole(`📥 Đã tải xuống: ${filename}`);
+        };
+
+        // Update snapshot count after deletion
+        window.updateSnapshotCount = function () {
+          const gallery = document.getElementById("snapshotGallery");
+          const currentCount =
+            gallery.querySelectorAll(".snapshot-item").length;
+          document.getElementById("snapshotCount").textContent = currentCount;
+          logToConsole(`🗑️ Đã xóa ảnh. Còn lại: ${currentCount} ảnh`);
+        };
+        // ============ END SNAPSHOT FUNCTIONALITY ============
+
+        // function makeCall() {
+        //   sdk.makeCall();
+        // }
+
+        // Log the SDK version
+        logToConsole(`SDK Version: ${sdk.getVersion()}`);
+
+        // Set up event listeners
+        sdk.on("CallEvent", (event) => {
+          console.log("CallEvent received:", event, new Date().getTime());
+        });
+
+        sdk.on("AssistantEvent", (event) => {
+          console.log("AssistantEvent received:", event);
+        });
+
+        sdk.on("AppEvent", (event) => {
+          console.log("AppEvent received:", event);
+          if (event.type === "connected") {
+            // setTimeout(() => {
+            sdk.changeAgentStatus(1001).then(() => {});
+            // }, 3000);
+          }
+        });
+
+        sdk.on("AgentStatusEvent", (event) => {
+          console.log(
+            "AgentStatusEvent received:",
+            event,
+            new Date().getTime(),
+          );
+        });
+        // ============ CHAT FUNCTIONALITY ============
+        const chatMessages = document.getElementById("chatMessages");
+        const chatInput = document.getElementById("chatInput");
+        const chatSend = document.getElementById("chatSend");
+
+        chatMessages.innerHTML =
+          '<div class="chat-empty">Chưa có tin nhắn</div>';
+
+        function appendChatBubble({
+          text,
+          sender,
+          type,
+          time,
+          messageType,
+          attachments,
+        }) {
+          const empty = chatMessages.querySelector(".chat-empty");
+          if (empty) empty.remove();
+
+          const bubble = document.createElement("div");
+          bubble.className = `chat-bubble ${type}`;
+
+          if (sender) {
+            const senderEl = document.createElement("div");
+            senderEl.className = "chat-sender";
+            senderEl.textContent = sender;
+            bubble.appendChild(senderEl);
+          }
+
+          function getAttUrl(att) {
+            return att.link || att.url || att.buffer || "";
+          }
+
+          if (messageType === "IMAGE" && attachments?.length) {
+            attachments.forEach((att) => {
+              const url = getAttUrl(att);
+              if (!url) return;
+              const img = document.createElement("img");
+              img.src = url;
+              img.className = "chat-image";
+              img.alt = att.fileName || "image";
+              img.onclick = () => window.open(url, "_blank");
+              bubble.appendChild(img);
+            });
+            if (text) {
+              const caption = document.createElement("div");
+              caption.textContent = text;
+              bubble.appendChild(caption);
+            }
+          } else if (messageType === "FILE" && attachments?.length) {
+            attachments.forEach((att) => {
+              const url = getAttUrl(att);
+              const link = document.createElement("a");
+              link.href = url || "#";
+              link.target = "_blank";
+              link.className = "chat-file";
+              link.innerHTML =
+                `📎 ${att.fileName || "file"}` +
+                (att.size
+                  ? ` <span class="chat-file-size">(${(att.size / 1024).toFixed(1)} KB)</span>`
+                  : "");
+              bubble.appendChild(link);
+            });
+            if (text) {
+              const caption = document.createElement("div");
+              caption.textContent = text;
+              bubble.appendChild(caption);
+            }
+          } else if (messageType === "MEDIA" && attachments?.length) {
+            attachments.forEach((att) => {
+              const url = getAttUrl(att);
+              const mimeType = att.type || "";
+              if (mimeType.startsWith("image")) {
+                const img = document.createElement("img");
+                img.src = url;
+                img.className = "chat-image";
+                img.alt = att.fileName || "media";
+                img.onclick = () => window.open(url, "_blank");
+                bubble.appendChild(img);
+              } else {
+                const link = document.createElement("a");
+                link.href = url || "#";
+                link.target = "_blank";
+                link.className = "chat-file";
+                link.textContent = `📎 ${att.fileName || "file"}`;
+                bubble.appendChild(link);
+              }
+            });
+            if (text) {
+              const caption = document.createElement("div");
+              caption.textContent = text;
+              bubble.appendChild(caption);
+            }
+          } else {
+            const content = document.createElement("div");
+            content.textContent = text;
+            bubble.appendChild(content);
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "chat-meta";
+          meta.textContent = time || new Date().toLocaleTimeString();
+          bubble.appendChild(meta);
+
+          chatMessages.appendChild(bubble);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sdk.on("InteractionEvent", (event) => {
+          console.log("InteractionEvent received:", event);
+          logToConsole(
+            `[InteractionEvent] ${event.type}: ${JSON.stringify(event)}`,
+          );
+
+          const from = event.messageFrom || "unknown";
+          const text = event.text || "";
+          const time = event.receivedTime
+            ? new Date(event.receivedTime).toLocaleTimeString()
+            : "";
+          const messageType = event.messageType || "TEXT";
+          const attachments = event.attachments || [];
+
+          if (!text && !attachments.length) return;
+
+          const bubbleType = from === "CUSTOMER" ? "incoming" : "outgoing";
+
+          appendChatBubble({
+            text,
+            sender: from,
+            type: bubbleType,
+            time,
+            messageType,
+            attachments,
+          });
+        });
+
+        // ── Send text ──
+        chatSend.addEventListener("click", () => {
+          const text = chatInput.value.trim();
+          if (!text) return;
+          sdk.sendMessage(text, "TEXT", []);
+          // appendChatBubble({ text, sender: "AGENT", type: "outgoing", time: "", messageType: "TEXT", attachments: [] });
+          chatInput.value = "";
+        });
+
+        chatInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") chatSend.click();
+        });
+
+        // ── Send file ──
+        const chatFileInput = document.getElementById("chatFileInput");
+        const chatFileInfo = document.getElementById("chatFileInfo");
+        const chatFileSend = document.getElementById("chatFileSend");
+        const MAX_FILE_SIZE = 5 * 1024 * 1024;
+        const MAX_TOTAL_SIZE = 15 * 1024 * 1024;
+
+        chatFileInput.addEventListener("change", () => {
+          const files = chatFileInput.files;
+          if (!files || files.length === 0) {
+            chatFileInfo.textContent = "Chưa chọn file";
+            return;
+          }
+          const names = Array.from(files)
+            .map((f) => f.name)
+            .join(", ");
+          chatFileInfo.textContent = `${files.length} file: ${names}`;
+        });
+
+        function arrayBufferToBase64(buffer, mimeType) {
+          let binary = "";
+          const bytes = new Uint8Array(buffer);
+          for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return `data:${mimeType};base64,${btoa(binary)}`;
+        }
+
+        chatFileSend.addEventListener("click", () => {
+          const files = chatFileInput.files;
+          if (!files || files.length === 0) {
+            chatFileInfo.textContent = "Chưa chọn file";
+            return;
+          }
+
+          const fileList = [];
+          let totalSize = 0;
+          let processed = 0;
+          const validFiles = [];
+
+          Array.from(files).forEach((file) => {
+            if (file.size > MAX_FILE_SIZE) {
+              logToConsole(`⚠️ ${file.name} vượt quá 5MB, bỏ qua`);
+              return;
+            }
+            totalSize += file.size;
+            if (totalSize > MAX_TOTAL_SIZE) {
+              totalSize -= file.size;
+              logToConsole(`⚠️ Tổng file vượt quá 15MB, bỏ qua ${file.name}`);
+              return;
+            }
+            validFiles.push(file);
+          });
+
+          if (validFiles.length === 0) {
+            chatFileInfo.textContent = "Không có file hợp lệ";
+            return;
+          }
+
+          validFiles.forEach((file, i) => {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onloadend = () => {
+              if (reader.result instanceof ArrayBuffer) {
+                const base64 = arrayBufferToBase64(reader.result, file.type);
+                const isImage = file.type.startsWith("image");
+                const msgType = "FILE";
+                const base64Data = base64.split(",")[1];
+                fileList.push({
+                  id: i,
+                  url: "",
+                  buffer: base64Data,
+                  type: file.type,
+                  fileName: file.name,
+                  size: file.size,
+                });
+
+                processed++;
+                if (processed === validFiles.length) {
+                  sdk.sendMessage("", msgType, fileList);
+                  // appendChatBubble({
+                  //   text: "",
+                  //   sender: "AGENT",
+                  //   type: "outgoing",
+                  //   time: "",
+                  //   messageType: msgType,
+                  //   attachments: fileList,
+                  // });
+                  chatFileInput.value = "";
+                  chatFileInfo.textContent = `Đã gửi ${fileList.length} file`;
+                  logToConsole(`📤 Đã gửi ${fileList.length} file`);
+                }
+              }
+            };
+          });
+        });
+        // ============ END CHAT FUNCTIONALITY ============
+
+        // Set up UI controls
+        document.getElementById("show-bubble").addEventListener("click", () => {
+          sdk.showBubble().then(() => {
+            logToConsole("Bubble shown via API call");
+          });
+        });
+
+        document.getElementById("hide-bubble").addEventListener("click", () => {
+          sdk.hideBubble().then(() => {
+            logToConsole("Bubble hidden via API call");
+          });
+        });
+        document.getElementById("list_agent").addEventListener("click", () => {
+          sdk.getAgentStatus().then((res) => {
+            logToConsole("getAgentStatus", res);
+          });
+        });
+        document
+          .getElementById("change_agent")
+          .addEventListener("click", () => {
+            sdk.changeAgentStatus(3).then(() => {
+              logToConsole("Bubble hidden via API call");
+            });
+          });
+
+        document.getElementById("toggle-mode").addEventListener("click", () => {
+          const currentMode = sdk.getOptions().mode;
+          const newMode = currentMode === "bubble" ? "none" : "bubble";
+
+          sdk.updateOptions({
+            mode: newMode,
+          });
+
+          logToConsole(`Mode changed to: ${newMode}`);
+        });
+      });
+
+      // Example of making a call after 3 seconds
+      setTimeout(() => {}, 3000);
+    </script>
+  </body>
+</html>
